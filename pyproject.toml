@@ -1,0 +1,31 @@
+[project]
+name = "mtbench"
+version = "0.1.0"
+description = "MTBench: multimodal time series benchmark (weather and finance)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "pyarrow",
+    "matplotlib",
+    "scikit-learn",
+    "huggingface-hub",
+    "gdown",
+    "anthropic",
+    "openai",
+    "google-genai",
+    "google-auth",
+    "datasets>=5.1.0",
+    "seaborn>=0.13.2",
+]
+
+[project.optional-dependencies]
+# only needed for evaluating local Llama models (--model llama)
+llama = ["torch", "transformers"]
+
+[dependency-groups]
+dev = ["jupyter", "ipykernel", "nbconvert"]
+
+[tool.uv]
+package = false

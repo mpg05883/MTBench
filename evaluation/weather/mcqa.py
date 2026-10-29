@@ -59,7 +59,8 @@ for json_file in directory_path.glob("*.json"):
             "text": data.get("text"),
             "input_timestamps": data.get("input_timestamps"),
             "question": data.get("question"),
-            "answer": data.get("answer")
+            "answer": data.get("answer"),
+            "extra_series": data.get("extra_series"),
         }
         data_list.append(extracted_data)
 
@@ -79,7 +80,8 @@ for idx, sample in enumerate(data_list):
         end_datetime=sample["input_timestamps"][-1],
         past_temperatures=sample["input_window"],
         news=sample["text"],
-        question=sample["question"]
+        question=sample["question"],
+        extra_series=sample["extra_series"],
     )
     try:
         if args.model == "gpt-4o":

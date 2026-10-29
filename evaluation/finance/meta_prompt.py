@@ -1,9 +1,9 @@
 import re
-from typing import List, Union
+
 
 def finance_mse_metaprompt_generation(
     text: str,
-    prices: List[float],
+    prices: list[float],
     start_datetime: str,
     end_datetime: str,
     pred_end_datetime: str,
@@ -12,7 +12,7 @@ def finance_mse_metaprompt_generation(
     mode: str,
 ) -> str:
     """
-    Generates a meta-prompt for hypothetical stock price trend analysis 
+    Generates a meta-prompt for hypothetical stock price trend analysis
     based on given inputs.
 
     Args:
@@ -66,9 +66,10 @@ def finance_mse_metaprompt_generation(
 
     return prompt
 
+
 def finance_macd_metaprompt_generation(
     text: str,
-    prices: List[float],
+    prices: list[float],
     start_datetime: str,
     end_datetime: str,
     pred_end_datetime: str,
@@ -115,9 +116,10 @@ def finance_macd_metaprompt_generation(
 
     return prompt
 
+
 def finance_bb_metaprompt_generation(
     text: str,
-    prices: List[float],
+    prices: list[float],
     start_datetime: str,
     end_datetime: str,
     pred_end_datetime: str,
@@ -164,7 +166,8 @@ def finance_bb_metaprompt_generation(
 
     return prompt
 
-def parse_val_prediction_response(response: str) -> Union[List[float], None]:
+
+def parse_val_prediction_response(response: str) -> list[float] | None:
     """
     Decodes the predicted prices from a response string.
 
@@ -176,14 +179,14 @@ def parse_val_prediction_response(response: str) -> Union[List[float], None]:
         None: If extraction fails.
     """
     match = re.search(r"Predicted Prices:\s*([-\d.,\s]+)", response)
-    
+
     if match:
         try:
-            price_list = [float(value) for value in match.group(1).split(',')]
+            price_list = [float(value) for value in match.group(1).split(",")]
             return price_list
         except ValueError:
             pass  # If conversion fails, try another approach
-    
+
     # Alternative approach: Find all potential numbers in the response
     possible_numbers = re.findall(r"-?\d+\.\d+", response)
     if possible_numbers:
@@ -191,13 +194,16 @@ def parse_val_prediction_response(response: str) -> Union[List[float], None]:
             return [float(num) for num in possible_numbers]
         except ValueError:
             pass  # If conversion fails, return None
-    
+
     return None  # Return None if extraction fails
 
-def finance_classification_metaprompt_generation(text=None, timestamps=None, prices=None, mode=None):
-    time_series_data = ", ".join([f"{price}" for price in  prices])
-    
-    if mode == "combined": 
+
+def finance_classification_metaprompt_generation(
+    text=None, timestamps=None, prices=None, mode=None
+):
+    time_series_data = ", ".join([f"{price}" for price in prices])
+
+    if mode == "combined":
         meta_prompt = f"""
             You are a financial prediction expert with knowledge of advanced machine learning models and time-series analysis. 
             Your goal is to predict the stock trend (rise, neutral, or fall) based on the following inputs:
@@ -226,7 +232,7 @@ def finance_classification_metaprompt_generation(text=None, timestamps=None, pri
             please think step-by-step and briefly explain how the combination of time-series data and news data led to the prediction;
             then wrap your final answer in the final predicted label in the format ^^^label^^^
         """
-    
+
     elif mode == "text_only":
         meta_prompt = f"""
             You are a financial prediction expert with knowledge of advanced machine learning models and time-series analysis. 
@@ -249,7 +255,7 @@ def finance_classification_metaprompt_generation(text=None, timestamps=None, pri
             Analyze the news semantics to identify trends and patterns that could impact stock performance.
             Then wrap your final answer in the final predicted label in the format ^^^label^^^
         """
-    
+
     elif mode == "timeseries_only":
         meta_prompt = f"""
             You are a financial prediction expert with knowledge of advanced machine learning models and time-series analysis. 
@@ -275,20 +281,22 @@ def finance_classification_metaprompt_generation(text=None, timestamps=None, pri
 
     return meta_prompt
 
+
 def parse_cls_response(answer):
     try:
-        return  re.findall(r'\^\^\^(.*?)\^\^\^', answer)[-1]
+        return re.findall(r"\^\^\^(.*?)\^\^\^", answer)[-1]
     except:
-        return  re.findall(r'\^+(.*?)\^+', answer)[-1]
+        return re.findall(r"\^+(.*?)\^+", answer)[-1]
 
 
+def finance_correlation_metaprompt_generation(
+    setting, sticker, time1, time2, in_price, news, time_news
+):
 
-def finance_correlation_metaprompt_generation(setting, sticker, time1, time2, in_price, news, time_news):
-    
     time_interval = "1 hour" if setting == "long" else "5 minutes"
-    
+
     if setting == "long":
-        system_prompt ="You are an expert in finance and stock market analysis. Based on the given 30-day historical stock price time series and a financial analysis published at the last timestamp of the time series, your task is to predict the correlation between the stock's price fluctuations in the next 7 days and the analysis sentiment (positive correlation indicates that positive analysis leads to price increase and negative analysis leads to price decrease). Take into account external factors or market conditions that might affect stock price movement."
+        system_prompt = "You are an expert in finance and stock market analysis. Based on the given 30-day historical stock price time series and a financial analysis published at the last timestamp of the time series, your task is to predict the correlation between the stock's price fluctuations in the next 7 days and the analysis sentiment (positive correlation indicates that positive analysis leads to price increase and negative analysis leads to price decrease). Take into account external factors or market conditions that might affect stock price movement."
     else:
         system_prompt = "You are an expert in finance and stock market analysis. Based on the given 7-day historical stock price time series and a financial analysis published at the last timestamp of the time series, your task is to predict the correlation between the stock's price fluctuations in the next 1 day and the analysis sentiment (positive correlation indicates that positive analysis leads to price increase and negative analysis leads to price decrease). Take into account external factors or market conditions that might affect stock price movement."
     question = "Return your answer in one of the following without any other words: Strong Positive Correlation, Moderate Positive Correlation, No Correlation, Moderate Negative Correlation, Strong Negative Correlation."
@@ -298,18 +306,18 @@ def finance_correlation_metaprompt_generation(setting, sticker, time1, time2, in
             {news}\
             {question} Answer:"
     prompt = f"{system_prompt}\n\n{query}"
-    
+
     return prompt
 
 
-
-
-def finance_mcqa_metaprompt_generation(setting, sticker, time1, time2, in_price, news, time_news, question):
+def finance_mcqa_metaprompt_generation(
+    setting, sticker, time1, time2, in_price, news, time_news, question
+):
     time_interval = "1 hour" if setting == "long" else "5 minutes"
-    if setting  == "long":
-        system_prompt ="You are an expert in finance and stock market analysis. Your task is to answer the question based on the given 30-day historical stock price time series and a financial analysis published at the last timestamp of the time series. Return your answer only in the letter (A, B, C, or D). "
+    if setting == "long":
+        system_prompt = "You are an expert in finance and stock market analysis. Your task is to answer the question based on the given 30-day historical stock price time series and a financial analysis published at the last timestamp of the time series. Return your answer only in the letter (A, B, C, or D). "
     else:
-        system_prompt ="You are an expert in finance and stock market analysis. Your task is to answer the question based on the given 7-day historical stock price time series and a financial analysis published at the last timestamp of the time series. Return your answer only in the letter (A, B, C, or D). "
+        system_prompt = "You are an expert in finance and stock market analysis. Your task is to answer the question based on the given 7-day historical stock price time series and a financial analysis published at the last timestamp of the time series. Return your answer only in the letter (A, B, C, or D). "
     query = f"stock price of {sticker} between {time1} to {time2}, time interval is {time_interval}: \
             {in_price}\
             News published at {time_news}: \
