@@ -22,6 +22,18 @@ def resolve_weather_data_dir() -> Path:
     return resolve_processed_data_dir() / "weather"
 
 
+def resolve_raw_data_dir() -> Path:
+    return resolve_data_dir() / "raw"
+
+
+def resolve_nws_afd_raw_dir() -> Path:
+    return resolve_raw_data_dir() / "nws_afd"
+
+
+def resolve_nws_afd_data_dir() -> Path:
+    return resolve_processed_data_dir() / "nws_afd"
+
+
 def resolve_finance_aligned_pairs_short_data_dir() -> Path:
     return resolve_finance_data_dir() / "aligned_in7days_out1days"
 

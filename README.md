@@ -133,6 +133,19 @@ Then run the evaluation script:
 
 Results are saved to `results/finance/trend_classification` correspondingly.
 
+### NWS AFD + GHCNh (`nws_afd`)
+
+Weather samples paired with NWS Area Forecast Discussions (text, from the Iowa Environmental Mesonet AFOS archive) and GHCNh hourly temperature. The GHCNh station files already in `data/raw/nws_afd/ghcnh` are reused and never re-downloaded. Each station is mapped to the forecast office (WFO) that covers it through `api.weather.gov/points`, cached in `data/raw/nws_afd/station_wfo.csv`. Code: `src/mtbench/adapters/nws_afd.py` (`NwsAfdAdapter`); entry points `data_preparation/weather/nws_afd_download.py`, `nws_afd_to_mtbench.py` (also `scripts/sources/nws_afd.py plan|fetch|build`). Every fetched URL is logged in `data/raw/nws_afd/MANIFEST.md`. `NWS_USER_AGENT` must be set in `.env`.
+
+```bash
+python data_preparation/weather/nws_afd_download.py --subset        # 3 stations, 2022 (use --plan to only print sizes)
+python data_preparation/weather/nws_afd_to_mtbench.py --subset      # writes data/processed/nws_afd/subset_aligned_*
+python data_preparation/weather/nws_afd_download.py                 # full run; refuses above 2 GB unless --allow_large
+python data_preparation/weather/nws_afd_to_mtbench.py               # data/processed/nws_afd/aligned_in{7,14}days_out{1,3}days/
+```
+
+Settings: 7 days in, 1 day out and 14 days in, 3 days out, hourly, local standard time. Anchors (23:00 local) are spaced 48 h apart per station. The text is the latest AFD from the station's WFO issued at or before the last input timestamp, at most 6 h earlier, otherwise the anchor is skipped. The header, the `$$` footer and the watches/warnings section are stripped; the other sections are kept as written, and `meta.sections` lists them. `meta.text_kind` is `forecast_of_future`. `meta.has_numeric_forecast` flags temperature numbers ("highs in the 80s", "low near 45", "around 70") in the sections that cover the output window; flagged samples are kept. Samples carry the shared `meta` block plus `wfo`, `issue_time_utc`, `afd_gap_hours`, `obs_frac_in/out`, `variable`, `freq`, `setting`. Kept and dropped counts are printed per reason.
+
 ## 4. Baseline Results
 
 We benchmark several state-of-the-art LLMs. The performance varies across different temporal reasoning tasks, highlighting areas for improvement in existing LLMs.
